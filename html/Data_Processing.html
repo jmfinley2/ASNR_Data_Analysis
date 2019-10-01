@@ -1,0 +1,281 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Hands-on Tutorial for Data Processing Pipelines</title><meta name="generator" content="MATLAB 9.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-10-01"><meta name="DC.source" content="Data_Processing.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Hands-on Tutorial for Data Processing Pipelines</h1><!--introduction--><p>Although this session will focus on data analysis, many problems with rigor and reproducibility arise before any data are collected (e.g. study design and sampling).</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">General coding principles</a></li><li><a href="#2">A pipeline for analzying data for a single participant (inner loop)</a></li><li><a href="#3">A pipeline for combining data from multiple participants (outer loop)</a></li><li><a href="#4">Using simulated data to develop and validate analysis pipelines</a></li><li><a href="#5">Example 1: Comparing mean values between two groups</a></li><li><a href="#6">Step 1: Define your population parameters</a></li><li><a href="#7">Step 2: Define your sample size for each group</a></li><li><a href="#8">Step 3: Create a simulated dataset using the randn function.</a></li><li><a href="#9">Step 4: Sanity check #1: Visualize data</a></li><li><a href="#10">Step 5: Sanity check #2: Compute summary statistics</a></li><li><a href="#11">Simplifying the alphabet soup of statistics with linear models</a></li><li><a href="#12">Alternative approach: Use a linear model</a></li><li><a href="#13">Create a table to store your data.</a></li><li><a href="#14">Fit a linear model and test if <img src="Data_Processing_eq00568585632588305943.png" alt="$\beta_1 = 0$" style="width:41px;height:13px;"></a></li></ul></div><h2 id="1">General coding principles</h2><div><ul><li>Write code for other humans and for your future self</li><li>Use descriptive variable names</li><li>Write good comments as you code. This requires striking a balance     between being comprehensive and readability.</li><li>Create well-documented examples that demonstrate how your code works</li></ul></div><h2 id="2">A pipeline for analzying data for a single participant (inner loop)</h2><div><ol><li>Import raw data</li><li>Perform manual or automated quality control (are measurements within     an expected range, can noise be filtered, can errors be fixed?)</li><li>Perform necessary pre-processing steps (segment long trials, compute     secondary variables of interest, filter data)</li><li>Perform manual or automated quality control</li><li>Compute summary measures (why averaging is important)</li><li>Perform manual or automated quality control</li><li>Save the results</li></ol></div><h2 id="3">A pipeline for combining data from multiple participants (outer loop)</h2><div><ol><li>Load each participant's data</li><li>Store data in a single matrix or structurebz</li><li>Perform manual or automated quality control</li><li>Compute summary measures and perform statistical analysis</li><li>Generate figures</li></ol></div><h2 id="4">Using simulated data to develop and validate analysis pipelines</h2><div><ul><li><b>Take-home message #1</b>: Generating simulated data can help you build intuition about factors that may influence the variance in your measurements and reduce your statistical power. Thinking about these factors before you collect your data can help you improve the rigor of your study design.</li></ul></div><div><ul><li><b>Take-home message #2</b>: Most common statistical analyses can be performed using a similar, model-based analysis approach.</li></ul></div><div><ul><li><b>Take-home message #3</b>: Your null hypotheses can generally be expressed as tests of whether coefficients in your model are equal to zero.</li></ul></div><div><ul><li><b>Take-home message #4</b>: Harness the power of simulation to develop your statistical inference skills.</li></ul></div><p>The examples below are extensions of examples provided in the Data Skills for Reproducible Science online tutorial (https://psyteachr.github.io/msc-data-skills/) from the Richard Morey and Mossa Reimert at the University of Glasgow School of Psychology.</p><h2 id="5">Example 1: Comparing mean values between two groups</h2><p>You are conducting a study to determine if peak shoulder flexion differs in a group that has had surgery to repair a labral tear and a group that received physical therapy for their labral tear, but no surgery.</p><p>Here, we will generate artificial/synthetic/simulated data for this study. We will assume that the peak shoulder flexion angle in the surgical group is <b>normally distributed</b> with a <b>mean of 100 degrees</b> and a <b>standard deviation of 5 degrees</b>. We will also assume that the peak shoulder flexion angle in the non-surgical group is <b>normally distributed</b> with a <b>mean of 120 degrees</b> and a <b>standard deviation of 10 degrees</b>.</p><h2 id="6">Step 1: Define your population parameters</h2><pre class="codeinput">Mean_Surgical = 100;        SD_Surgical = 5;
+Mean_Non_Surgical = 120;    SD_Non_Surgical = 10;
+</pre><h2 id="7">Step 2: Define your sample size for each group</h2><pre class="codeinput">Samp_Size = 50;
+</pre><h2 id="8">Step 3: Create a simulated dataset using the randn function.</h2><pre class="codeinput">Peak_Shoulder_Angle_Surgical = Mean_Surgical + SD_Surgical*randn(Samp_Size,1);
+Peak_Shoulder_Angle_Non_Surgical = Mean_Non_Surgical + SD_Non_Surgical*randn(Samp_Size,1);
+</pre><h2 id="9">Step 4: Sanity check #1: Visualize data</h2><p>Make sure that the values are consistent with what you expect.</p><pre class="codeinput">figure, subplot(1,2,1), hist(Peak_Shoulder_Angle_Surgical)
+xlabel(<span class="string">'Shoulder Angle (deg)'</span>,<span class="string">'FontSize'</span>,12)
+ylabel(<span class="string">'Count'</span>,<span class="string">'FontSize'</span>,12)
+title(<span class="string">'Surgical Group'</span>)
+xlim([80 150]), ylim([0 15]), set(gca,<span class="string">'FontSize'</span>,10), axis <span class="string">square</span>
+
+subplot(1,2,2), hist(Peak_Shoulder_Angle_Non_Surgical)
+xlabel(<span class="string">'Shoulder Angle (deg)'</span>,<span class="string">'FontSize'</span>,12)
+ylabel(<span class="string">'Count'</span>,<span class="string">'FontSize'</span>,12)
+title(<span class="string">'Non-Surgical Group'</span>)
+xlim([80 150]), ylim([0 15]), axis <span class="string">square</span>
+set(gcf,<span class="string">'Units'</span>,<span class="string">'centimeters'</span>,<span class="string">'InnerPosition'</span>,[5 5 12 7])
+</pre><img vspace="5" hspace="5" src="Data_Processing_01.png" alt=""> <h2 id="10">Step 5: Sanity check #2: Compute summary statistics</h2><p>Make sure that they are consistent with what you expect.</p><pre class="codeinput">Mean_Surgical_Sample = mean(Peak_Shoulder_Angle_Surgical);
+SD_Surgical_Sample = std(Peak_Shoulder_Angle_Surgical);
+subplot(1,2,1)
+text(105,14,strcat([<span class="string">'Mean: '</span> num2str(Mean_Surgical_Sample,3)]))
+text(105,12,strcat([<span class="string">'St Dev: '</span> num2str(SD_Surgical_Sample,3)]))
+
+Mean_Non_Surgical_Sample = mean(Peak_Shoulder_Angle_Non_Surgical);
+SD_Non_Surgical_Sample = std(Peak_Shoulder_Angle_Non_Surgical);
+subplot(1,2,2)
+text(82,14,strcat([<span class="string">'Mean: '</span> num2str(Mean_Non_Surgical_Sample,3)]))
+text(82,12,strcat([<span class="string">'St Dev: '</span> num2str(SD_Non_Surgical_Sample,3)]))
+</pre><img vspace="5" hspace="5" src="Data_Processing_02.png" alt=""> <h2 id="11">Simplifying the alphabet soup of statistics with linear models</h2><p>Many of the most common statistical analysis procedures we use can be represented as a test of the coefficients of a linear model with continuous and categorical predictors.</p><p><b>Example</b>: Use an independent-samples t-test to test the null hypothesis that your data are drawn from two normal distributions with the same mean.</p><p><b>Translation</b>: Is there evidence to reject the claim that there is no difference in peak shoulder flexion between the surgical and therapy groups?</p><pre class="codeinput">[Reject_Null, p_value] = ttest2(Peak_Shoulder_Angle_Surgical,Peak_Shoulder_Angle_Non_Surgical);
+disp(p_value)
+</pre><pre class="codeoutput">   5.1704e-18
+
+</pre><h2 id="12">Alternative approach: Use a linear model</h2><p>Treat group (Surgical/Rehab) as a categorical, independent variable and test whether the coefficients of the groups differ from one another.</p><p><img src="Data_Processing_eq01919162644392212792.png" alt="$$\theta_{peak} = \beta_0 + \beta_1*Group$$" style="width:149px;height:15px;"></p><p>For the Surgical Group, <img src="Data_Processing_eq01110679154285049323.png" alt="$Group = 0$" style="width:67px;height:13px;">. Therefore, <img src="Data_Processing_eq07186387149644750395.png" alt="$\beta_0$" style="width:13px;height:13px;"> is the estimated mean for the Surgical Group.</p><p>For the Non-Surgical group, <img src="Data_Processing_eq00724599269273415454.png" alt="$Group = 1$" style="width:67px;height:13px;">. Therefore, <img src="Data_Processing_eq17536642746307215369.png" alt="$\beta_0 + \beta_1$" style="width:45px;height:13px;"> is the estimated mean for the Non-Surgical Group.</p><p>If we reject the null hypothesis that <img src="Data_Processing_eq00568585632588305943.png" alt="$\beta_1 = 0$" style="width:41px;height:13px;">, this suggests that the means for each group differ from one another.</p><h2 id="13">Create a table to store your data.</h2><p>Note that the third column of the Data table contains a "dummy variable" for Group assignment. This variable is zero for the Surgical group and one for the Non-Surgical group.</p><p><b>Note that the p-value for the Group effect is the same as the p-value from our t-test.</b></p><pre class="codeinput">Data = table([Peak_Shoulder_Angle_Surgical; Peak_Shoulder_Angle_Non_Surgical],[zeros(50,1); ones(50,1)],<span class="keyword">...</span>
+    <span class="string">'VariableNames'</span>,{<span class="string">'Shoulder_Flex_Ang'</span> <span class="string">'Group'</span>});
+</pre><h2 id="14">Fit a linear model and test if <img src="Data_Processing_eq00568585632588305943.png" alt="$\beta_1 = 0$" style="width:41px;height:13px;"></h2><pre class="codeinput">Model = fitlm(Data,<span class="string">'Shoulder_Flex_Ang ~ Group'</span>);
+disp(Model)
+</pre><pre class="codeoutput">
+Linear regression model:
+    Shoulder_Flex_Ang ~ 1 + Group
+
+Estimated Coefficients:
+                   Estimate      SE      tStat       pValue  
+                   ________    ______    ______    __________
+
+    (Intercept)     100.93     1.3465    74.957    2.3956e-88
+    Group           20.246     1.9042    10.632    5.1704e-18
+
+
+Number of observations: 100, Error degrees of freedom: 98
+Root Mean Squared Error: 9.52
+R-squared: 0.536,  Adjusted R-Squared 0.531
+F-statistic vs. constant model: 113, p-value = 5.17e-18
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2018b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Hands-on Tutorial for Data Processing Pipelines
+%
+% Although this session will focus on data analysis, many problems with
+% rigor and reproducibility arise before any data are collected (e.g. study
+% design and sampling).
+%
+%% General coding principles
+% 
+% * Write code for other humans and for your future self
+% * Use descriptive variable names
+% * Write good comments as you code. This requires striking a balance
+%     between being comprehensive and readability. 
+% * Create well-documented examples that demonstrate how your code works
+% 
+%% A pipeline for analzying data for a single participant (inner loop)
+% # Import raw data
+% # Perform manual or automated quality control (are measurements within
+%     an expected range, can noise be filtered, can errors be fixed?)
+% # Perform necessary pre-processing steps (segment long trials, compute
+%     secondary variables of interest, filter data)
+% # Perform manual or automated quality control
+% # Compute summary measures (why averaging is important)
+% # Perform manual or automated quality control
+% # Save the results
+% 
+%% A pipeline for combining data from multiple participants (outer loop)
+% # Load each participant's data
+% # Store data in a single matrix or structurebz
+% # Perform manual or automated quality control
+% # Compute summary measures and perform statistical analysis
+% # Generate figures
+% 
+%% Using simulated data to develop and validate analysis pipelines
+%
+% * *Take-home message #1*: Generating simulated data can help you build
+% intuition about factors that may influence the variance in your
+% measurements and reduce your statistical power. Thinking about these
+% factors before you collect your data can help you improve the rigor of
+% your study design. 
+%
+% * *Take-home message #2*: Most common statistical analyses can be performed
+% using a similar, model-based analysis approach. 
+% 
+% * *Take-home message #3*: Your null hypotheses can generally be expressed as
+% tests of whether coefficients in your model are equal to zero.
+%
+% * *Take-home message #4*: Harness the power of simulation to develop your
+% statistical inference skills.
+%
+% The examples below are extensions of examples provided in the Data Skills
+% for Reproducible Science online tutorial
+% (https://psyteachr.github.io/msc-data-skills/) from the Richard Morey and
+% Mossa Reimert at the University of Glasgow School of Psychology.
+%
+%% Example 1: Comparing mean values between two groups
+% 
+% You are conducting a study to determine if peak shoulder flexion differs
+% in a group that has had surgery to repair a labral tear and a group that
+% received physical therapy for their labral tear, but no surgery.
+% 
+% Here, we will generate artificial/synthetic/simulated data for this
+% study. We will assume that the peak shoulder flexion angle in the
+% surgical group is *normally distributed* with a *mean of 100 degrees* and
+% a *standard deviation of 5 degrees*. We will also assume that the peak
+% shoulder flexion angle in the non-surgical group is *normally
+% distributed* with a *mean of 120 degrees* and a *standard deviation of 10
+% degrees*.
+%
+%
+%% Step 1: Define your population parameters
+Mean_Surgical = 100;        SD_Surgical = 5; 
+Mean_Non_Surgical = 120;    SD_Non_Surgical = 10;
+
+%% Step 2: Define your sample size for each group
+Samp_Size = 50;
+
+%% Step 3: Create a simulated dataset using the randn function. 
+
+Peak_Shoulder_Angle_Surgical = Mean_Surgical + SD_Surgical*randn(Samp_Size,1);
+Peak_Shoulder_Angle_Non_Surgical = Mean_Non_Surgical + SD_Non_Surgical*randn(Samp_Size,1);
+
+%% Step 4: Sanity check #1: Visualize data 
+% Make sure that the values are consistent with what you expect. 
+figure, subplot(1,2,1), hist(Peak_Shoulder_Angle_Surgical)
+xlabel('Shoulder Angle (deg)','FontSize',12)
+ylabel('Count','FontSize',12)
+title('Surgical Group')
+xlim([80 150]), ylim([0 15]), set(gca,'FontSize',10), axis square
+
+subplot(1,2,2), hist(Peak_Shoulder_Angle_Non_Surgical)
+xlabel('Shoulder Angle (deg)','FontSize',12)
+ylabel('Count','FontSize',12)
+title('Non-Surgical Group')
+xlim([80 150]), ylim([0 15]), axis square
+set(gcf,'Units','centimeters','InnerPosition',[5 5 12 7])
+
+%% Step 5: Sanity check #2: Compute summary statistics 
+% Make sure that they are consistent with what you expect. 
+Mean_Surgical_Sample = mean(Peak_Shoulder_Angle_Surgical);
+SD_Surgical_Sample = std(Peak_Shoulder_Angle_Surgical);
+subplot(1,2,1)
+text(105,14,strcat(['Mean: ' num2str(Mean_Surgical_Sample,3)]))
+text(105,12,strcat(['St Dev: ' num2str(SD_Surgical_Sample,3)]))
+
+Mean_Non_Surgical_Sample = mean(Peak_Shoulder_Angle_Non_Surgical);
+SD_Non_Surgical_Sample = std(Peak_Shoulder_Angle_Non_Surgical);
+subplot(1,2,2)
+text(82,14,strcat(['Mean: ' num2str(Mean_Non_Surgical_Sample,3)]))
+text(82,12,strcat(['St Dev: ' num2str(SD_Non_Surgical_Sample,3)]))
+
+%% Simplifying the alphabet soup of statistics with linear models
+%
+% Many of the most common statistical analysis procedures we use can be
+% represented as a test of the coefficients of a linear model with
+% continuous and categorical predictors.
+% 
+% *Example*: Use an independent-samples t-test to test the null hypothesis
+% that your data are drawn from two normal distributions with the same
+% mean. 
+%
+% *Translation*: Is there evidence to reject the claim that there is no
+% difference in peak shoulder flexion between the surgical and therapy
+% groups?
+%
+[Reject_Null, p_value] = ttest2(Peak_Shoulder_Angle_Surgical,Peak_Shoulder_Angle_Non_Surgical);
+disp(p_value)
+
+%% Alternative approach: Use a linear model 
+% Treat group (Surgical/Rehab) as a categorical, independent variable and
+% test whether the coefficients of the groups differ from one another.
+% 
+% $$\theta_{peak} = \beta_0 + \beta_1*Group$$
+%
+% For the Surgical Group, $Group = 0$. Therefore, $\beta_0$ is the estimated
+% mean for the Surgical Group. 
+%
+% For the Non-Surgical group, $Group = 1$. Therefore, $\beta_0 + \beta_1$
+% is the estimated mean for the Non-Surgical Group.
+%
+% If we reject the null hypothesis that $\beta_1 = 0$, this suggests that
+% the means for each group differ from one another.
+%
+%%  Create a table to store your data. 
+% Note that the third column of the Data table contains a "dummy variable"
+% for Group assignment. This variable is zero for the Surgical group and
+% one for the Non-Surgical group.
+%
+% *Note that the p-value for the Group effect is the same as the p-value
+% from our t-test.*
+Data = table([Peak_Shoulder_Angle_Surgical; Peak_Shoulder_Angle_Non_Surgical],[zeros(50,1); ones(50,1)],...
+    'VariableNames',{'Shoulder_Flex_Ang' 'Group'});
+%% Fit a linear model and test if $\beta_1 = 0$ 
+%
+Model = fitlm(Data,'Shoulder_Flex_Ang ~ Group');
+disp(Model)
+
+
+##### SOURCE END #####
+--></body></html>
